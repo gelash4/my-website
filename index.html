@@ -1,37 +1,80 @@
+<!-- index.html - Главная страница магазина мебели с данными из JSON -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Мой первый сайт</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Магазин мебели</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <header>
-    <h1>Привет 👋</h1>
-    <p>Добро пожаловать на мой первый сайт, сделанный своими руками!</p>
+<body class="bg-gray-50 text-gray-800">
+  <header class="bg-blue-600 text-white p-6 text-center">
+    <h1 class="text-3xl font-bold">Мебель от Dima Gela</h1>
+    <p class="mt-2">Каталог мебели с доставкой по всей Украине</p>
   </header>
 
-  <main>
-    <section class="block">
-      <h2>🚀 О проекте</h2>
-      <p>Этот сайт публикуется автоматически через GitHub Actions и обновляется после каждого коммита.</p>
-    </section>
+  <main class="p-6 max-w-5xl mx-auto">
+    <h2 class="text-2xl font-semibold mb-4">Каталог товаров</h2>
+    <div id="catalog" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Карточки товаров будут подгружены из JSON -->
+    </div>
 
-    <section class="block">
-      <h2>🧠 Я учу</h2>
-      <ul>
-        <li>HTML + CSS</li>
-        <li>Git и GitHub</li>
-        <li>CI/CD (GitHub Actions)</li>
-        <li>Telegram-уведомления</li>
-      </ul>
-    </section>
+    <div class="mt-12">
+      <h2 class="text-xl font-semibold mb-4">Заказать товар</h2>
+      <form class="bg-white p-4 rounded shadow grid gap-4 max-w-md" name="orderForm">
+        <input class="border p-2 rounded" type="text" placeholder="Ваше имя" required>
+        <input class="border p-2 rounded" type="tel" placeholder="Телефон" required>
+        <input class="border p-2 rounded" type="text" placeholder="Название товара" required>
+        <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700">Отправить</button>
+      </form>
+    </div>
   </main>
 
-  <footer>
-    <p>Сделано с ❤️ в 2025 году</p>
+  <footer class="bg-gray-100 text-center p-4 mt-12 text-sm text-gray-600">
+    © 2025 Магазин мебели. Все права защищены.
   </footer>
+
+  <script>
+    const products = [
+      {
+        name: "Шкаф для полотенец",
+        description: "Удобный и стильный шкаф. Цвет: дуб сонома.",
+        price: "₴ 3 800",
+        image: "https://via.placeholder.com/400x300"
+      },
+      {
+        name: "Стол маникюрный",
+        description: "Белый стол с дубовой столешницей. Правосторонний.",
+        price: "₴ 4 200",
+        image: "https://via.placeholder.com/400x300"
+      },
+      {
+        name: "Тумба под раковину",
+        description: "Компактная тумба с ящиками. Цвет: венге.",
+        price: "₴ 2 900",
+        image: "https://via.placeholder.com/400x300"
+      }
+    ];
+
+    const catalog = document.getElementById("catalog");
+    products.forEach(product => {
+      const card = document.createElement("div");
+      card.className = "bg-white rounded-xl shadow p-4 hover:shadow-md transition";
+      card.innerHTML = `
+        <img src="${product.image}" alt="${product.name}" class="rounded mb-4">
+        <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+        <p class="mb-2">${product.description}</p>
+        <span class="text-blue-600 font-semibold text-lg">${product.price}</span>
+      `;
+      catalog.appendChild(card);
+    });
+
+    document.forms.orderForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      alert("Спасибо! Мы свяжемся с вами в ближайшее время.");
+      this.reset();
+    });
+  </script>
 </body>
 </html>
 
