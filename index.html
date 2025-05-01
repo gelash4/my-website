@@ -1,4 +1,4 @@
-<!-- index.html - Главная страница магазина мебели с фильтрацией по категориям -->
+<!-- index.html - Главная страница магазина мебели с API сохранением в GitHub -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -16,13 +16,22 @@
   <main class="p-6 max-w-5xl mx-auto">
     <h2 class="text-2xl font-semibold mb-4">Каталог товаров</h2>
 
-    <!-- Фильтр по категориям -->
     <div id="categoryFilter" class="flex gap-2 flex-wrap mb-6">
       <button class="bg-gray-200 hover:bg-blue-200 px-3 py-1 rounded" data-category="all">Все</button>
     </div>
 
-    <div id="catalog" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      <!-- Карточки товаров будут подгружены из JSON -->
+    <div id="catalog" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+    <div class="mt-12">
+      <h2 class="text-xl font-semibold mb-4">Добавить товар</h2>
+      <form id="adminForm" class="bg-white p-4 rounded shadow grid gap-4 max-w-xl">
+        <input class="border p-2 rounded" name="name" placeholder="Название товара" required>
+        <input class="border p-2 rounded" name="description" placeholder="Описание товара" required>
+        <input class="border p-2 rounded" name="price" placeholder="Цена (например, ₴ 4500)" required>
+        <input class="border p-2 rounded" name="image" placeholder="Ссылка на изображение" required>
+        <input class="border p-2 rounded" name="category" placeholder="Категория" required>
+        <button type="submit" class="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">Добавить в каталог</button>
+      </form>
     </div>
 
     <div class="mt-12">
@@ -41,30 +50,7 @@
   </footer>
 
   <script>
-    const products = [
-      {
-        name: "Шкаф для полотенец",
-        description: "Удобный и стильный шкаф. Цвет: дуб сонома.",
-        price: "₴ 3 800",
-        image: "https://via.placeholder.com/400x300",
-        category: "Шкафы"
-      },
-      {
-        name: "Стол маникюрный",
-        description: "Белый стол с дубовой столешницей. Правосторонний.",
-        price: "₴ 4 200",
-        image: "https://via.placeholder.com/400x300",
-        category: "Столы"
-      },
-      {
-        name: "Тумба под раковину",
-        description: "Компактная тумба с ящиками. Цвет: венге.",
-        price: "₴ 2 900",
-        image: "https://via.placeholder.com/400x300",
-        category: "Тумбы"
-      }
-    ];
-
+    let products = [];
     const catalog = document.getElementById("catalog");
     const filterContainer = document.getElementById("categoryFilter");
 
@@ -85,30 +71,62 @@
       });
     };
 
-    // генерация кнопок фильтра
-    const categories = ["Шкафы", "Столы", "Тумбы"];
-    categories.forEach(cat => {
-      const btn = document.createElement("button");
-      btn.textContent = cat;
-      btn.className = "bg-gray-200 hover:bg-blue-200 px-3 py-1 rounded";
-      btn.dataset.category = cat;
-      filterContainer.appendChild(btn);
-    });
+    const loadProducts = async () => {
+      try {
+        const res = await fetch("products.json");
+        products = await res.json();
 
-    // обработка нажатия на фильтр
+        const categories = [...new Set(products.map(p => p.category))];
+        categories.forEach(cat => {
+          const btn = document.createElement("button");
+          btn.textContent = cat;
+          btn.className = "bg-gray-200 hover:bg-blue-200 px-3 py-1 rounded";
+          btn.dataset.category = cat;
+          filterContainer.appendChild(btn);
+        });
+
+        renderProducts();
+      } catch (e) {
+        catalog.innerHTML = `<p class='text-red-600'>Ошибка загрузки товаров 😢</p>`;
+      }
+    };
+
     filterContainer.addEventListener("click", e => {
       if (e.target.dataset.category) {
         renderProducts(e.target.dataset.category);
       }
     });
 
-    renderProducts(); // начальная отрисовка всех
-
     document.forms.orderForm.addEventListener('submit', function (e) {
       e.preventDefault();
       alert("Спасибо! Мы свяжемся с вами в ближайшее время.");
       this.reset();
     });
+
+    document.getElementById("adminForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const newProduct = Object.fromEntries(formData.entries());
+
+      fetch("http://localhost:5000/add-product", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newProduct)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "success") {
+          alert("Товар успешно добавлен и сохранён в GitHub 🎉");
+          loadProducts();
+        } else {
+          alert("Ошибка при сохранении 😢");
+        }
+      });
+
+      this.reset();
+    });
+
+    loadProducts();
   </script>
 </body>
 </html>
