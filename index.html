@@ -1,4 +1,4 @@
-<!-- index.html - Главная страница магазина мебели с данными из JSON -->
+<!-- index.html - Главная страница магазина мебели с фильтрацией по категориям -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -15,6 +15,12 @@
 
   <main class="p-6 max-w-5xl mx-auto">
     <h2 class="text-2xl font-semibold mb-4">Каталог товаров</h2>
+
+    <!-- Фильтр по категориям -->
+    <div id="categoryFilter" class="flex gap-2 flex-wrap mb-6">
+      <button class="bg-gray-200 hover:bg-blue-200 px-3 py-1 rounded" data-category="all">Все</button>
+    </div>
+
     <div id="catalog" class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       <!-- Карточки товаров будут подгружены из JSON -->
     </div>
@@ -40,34 +46,63 @@
         name: "Шкаф для полотенец",
         description: "Удобный и стильный шкаф. Цвет: дуб сонома.",
         price: "₴ 3 800",
-        image: "https://via.placeholder.com/400x300"
+        image: "https://via.placeholder.com/400x300",
+        category: "Шкафы"
       },
       {
         name: "Стол маникюрный",
         description: "Белый стол с дубовой столешницей. Правосторонний.",
         price: "₴ 4 200",
-        image: "https://via.placeholder.com/400x300"
+        image: "https://via.placeholder.com/400x300",
+        category: "Столы"
       },
       {
         name: "Тумба под раковину",
         description: "Компактная тумба с ящиками. Цвет: венге.",
         price: "₴ 2 900",
-        image: "https://via.placeholder.com/400x300"
+        image: "https://via.placeholder.com/400x300",
+        category: "Тумбы"
       }
     ];
 
     const catalog = document.getElementById("catalog");
-    products.forEach(product => {
-      const card = document.createElement("div");
-      card.className = "bg-white rounded-xl shadow p-4 hover:shadow-md transition";
-      card.innerHTML = `
-        <img src="${product.image}" alt="${product.name}" class="rounded mb-4">
-        <h3 class="text-xl font-bold mb-2">${product.name}</h3>
-        <p class="mb-2">${product.description}</p>
-        <span class="text-blue-600 font-semibold text-lg">${product.price}</span>
-      `;
-      catalog.appendChild(card);
+    const filterContainer = document.getElementById("categoryFilter");
+
+    const renderProducts = (category = "all") => {
+      catalog.innerHTML = "";
+      const filtered = category === "all" ? products : products.filter(p => p.category === category);
+      filtered.forEach(product => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-xl shadow p-4 hover:shadow-md transition";
+        card.innerHTML = `
+          <img src="${product.image}" alt="${product.name}" class="rounded mb-4">
+          <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+          <p class="mb-2">${product.description}</p>
+          <span class="text-blue-600 font-semibold text-lg">${product.price}</span><br>
+          <button onclick="document.querySelector('[placeholder=\'Название товара\']').value='${product.name}'" class="mt-2 bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700 text-sm">Заказать</button>
+        `;
+        catalog.appendChild(card);
+      });
+    };
+
+    // генерация кнопок фильтра
+    const categories = ["Шкафы", "Столы", "Тумбы"];
+    categories.forEach(cat => {
+      const btn = document.createElement("button");
+      btn.textContent = cat;
+      btn.className = "bg-gray-200 hover:bg-blue-200 px-3 py-1 rounded";
+      btn.dataset.category = cat;
+      filterContainer.appendChild(btn);
     });
+
+    // обработка нажатия на фильтр
+    filterContainer.addEventListener("click", e => {
+      if (e.target.dataset.category) {
+        renderProducts(e.target.dataset.category);
+      }
+    });
+
+    renderProducts(); // начальная отрисовка всех
 
     document.forms.orderForm.addEventListener('submit', function (e) {
       e.preventDefault();
